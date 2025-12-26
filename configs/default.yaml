@@ -1,0 +1,88 @@
+# Default configuration for EEG signal processing project
+
+# Data configuration
+data:
+  num_samples: 1000
+  channels: 14
+  seq_len: 128
+  sampling_rate: 256  # Hz
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  patient_level_split: true
+  synthetic_data: true
+
+# Model configuration
+model:
+  name: "eegnet"  # Options: eegnet, tcn, transformer, ensemble
+  channels: 14
+  seq_len: 128
+  num_classes: 2
+  dropout: 0.3
+  
+  # EEGNet specific
+  eegnet:
+    conv1_filters: 32
+    conv2_filters: 64
+    kernel_size: 3
+    pool_size: 2
+    
+  # TCN specific
+  tcn:
+    num_channels: [64, 64, 64, 64]
+    kernel_size: 3
+    dropout: 0.2
+    
+  # Transformer specific
+  transformer:
+    d_model: 128
+    nhead: 8
+    num_layers: 4
+    dim_feedforward: 512
+
+# Training configuration
+training:
+  batch_size: 32
+  num_epochs: 50
+  learning_rate: 0.001
+  weight_decay: 1e-4
+  scheduler: "cosine"  # Options: cosine, step, plateau
+  early_stopping_patience: 10
+  gradient_clip_norm: 1.0
+  
+# Loss configuration
+loss:
+  name: "cross_entropy"  # Options: cross_entropy, focal, focal_alpha
+  focal_alpha: 0.25
+  focal_gamma: 2.0
+  class_weights: null  # null for balanced, or [w0, w1] for custom weights
+
+# Evaluation configuration
+evaluation:
+  metrics: ["auroc", "auprc", "sensitivity", "specificity", "ppv", "npv", "brier_score", "ece"]
+  calibration_bins: 10
+  threshold_tuning: true
+  per_channel_analysis: true
+  
+# Device configuration
+device:
+  auto_detect: true
+  fallback_order: ["cuda", "mps", "cpu"]
+  
+# Logging configuration
+logging:
+  level: "INFO"
+  log_dir: "logs"
+  tensorboard: true
+  wandb: false
+  wandb_project: "eeg-signal-processing"
+  
+# Reproducibility
+seed: 42
+deterministic: true
+
+# Demo configuration
+demo:
+  port: 8501
+  host: "localhost"
+  max_file_size: 10  # MB

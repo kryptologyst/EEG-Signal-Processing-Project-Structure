@@ -1,0 +1,38 @@
+# Core ML dependencies
+torch>=2.0.0
+torchaudio>=2.0.0
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+tqdm>=4.65.0
+pyyaml>=6.0
+omegaconf>=2.3.0
+matplotlib>=3.7.0
+plotly>=5.15.0
+tensorboard>=2.13.0
+
+# EEG/Signal processing specific
+mne>=1.4.0
+pyts>=0.12.0
+sktime>=0.20.0
+wfdb>=4.1.0
+
+# Additional utilities
+seaborn>=0.12.0
+scipy>=1.11.0
+joblib>=1.3.0
+
+# Development and formatting
+black>=23.0.0
+ruff>=0.0.280
+pytest>=7.4.0
+pre-commit>=3.3.0
+
+# Demo
+streamlit>=1.25.0
+gradio>=3.40.0
+
+# Optional: Advanced features
+# transformers>=4.30.0  # For transformer-based models
+# wandb>=0.15.0  # For experiment tracking
+# mlflow>=2.5.0  # Alternative experiment tracking

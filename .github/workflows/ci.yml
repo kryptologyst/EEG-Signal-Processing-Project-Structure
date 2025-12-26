@@ -1,0 +1,104 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black ruff pytest
+    
+    - name: Run black
+      run: black --check src/ scripts/ tests/ demo/
+    
+    - name: Run ruff
+      run: ruff check src/ scripts/ tests/ demo/
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, '3.10']
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      run: |
+        python -m pytest tests/ -v --tb=short
+    
+    - name: Test model creation
+      run: |
+        python -c "
+        import sys
+        sys.path.append('src')
+        from models import create_model
+        config = {'name': 'eegnet', 'channels': 14, 'seq_len': 128, 'num_classes': 2}
+        model = create_model(config)
+        print('Model created successfully')
+        "
+
+  build-demo:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Test demo imports
+      run: |
+        python -c "
+        import sys
+        sys.path.append('src')
+        import streamlit as st
+        print('Demo dependencies OK')
+        "
+    
+    - name: Create demo artifact
+      run: |
+        mkdir -p demo-artifact
+        cp -r demo/ demo-artifact/
+        cp -r src/ demo-artifact/
+        cp -r configs/ demo-artifact/
+        cp requirements.txt demo-artifact/
+        cp README.md demo-artifact/
+        cp DISCLAIMER.md demo-artifact/
+    
+    - name: Upload demo artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: demo-artifact
+        path: demo-artifact/
